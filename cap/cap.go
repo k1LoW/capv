@@ -1,6 +1,7 @@
 package cap
 
 import (
+	"fmt"
 	"math"
 	"path/filepath"
 	"strconv"
@@ -67,7 +68,7 @@ func NewCaps(s string, clc int) (Caps, error) {
 	}, nil
 }
 
-func (c Caps) GetIntSlice() ([]int, error) {
+func (c Caps) GetIntSlice() []int {
 	bools := parseCaps(c.caps, c.clc)
 	ints := []int{}
 	for i, b := range bools {
@@ -75,10 +76,10 @@ func (c Caps) GetIntSlice() ([]int, error) {
 			ints = append(ints, i)
 		}
 	}
-	return ints, nil
+	return ints
 }
 
-func (c Caps) GetStringSlice() ([]string, error) {
+func (c Caps) GetStringSlice() []string {
 	bools := parseCaps(c.caps, c.clc)
 	strings := []string{}
 	for i, b := range bools {
@@ -86,7 +87,20 @@ func (c Caps) GetStringSlice() ([]string, error) {
 			strings = append(strings, Capabilities[i])
 		}
 	}
-	return strings, nil
+	return strings
+}
+
+func (c Caps) String() string {
+	return fmt.Sprintf("%s", c.GetStringSlice())
+}
+
+type FileCapEff bool
+
+func (c FileCapEff) String() string {
+	if c {
+		return "1"
+	}
+	return "0"
 }
 
 func parseCaps(caps uint32, clc int) []bool {

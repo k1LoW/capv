@@ -17,28 +17,19 @@ func TestFieCaps(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	got, err := c.CapPrm.GetStringSlice()
-	if err != nil {
-		t.Fatal(err)
-	}
+	got := c.CapPrm.GetStringSlice()
 	want := []string{"CAP_NET_BIND_SERVICE"}
 	if diff := cmp.Diff(got, want, nil); diff != "" {
 		t.Errorf("got %v\nwant %v", got, want)
 	}
 
-	got2, err := c.CapEff.GetStringSlice()
-	if err != nil {
-		t.Fatal(err)
-	}
-	want2 := []string{"CAP_NET_BIND_SERVICE"}
-	if diff := cmp.Diff(got2, want2, nil); diff != "" {
+	got2 := c.CapEff
+	want2 := true
+	if got2 != want2 {
 		t.Errorf("got %v\nwant %v", got2, want2)
 	}
 
-	got3, err := c.CapInh.GetStringSlice()
-	if err != nil {
-		t.Fatal(err)
-	}
+	got3 := c.CapInh.GetStringSlice()
 	want3 := []string{}
 	if diff := cmp.Diff(got3, want3, nil); diff != "" {
 		t.Errorf("got %v\nwant %v", got3, want3)

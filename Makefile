@@ -27,6 +27,9 @@ sec:
 build:
 	go build -ldflags="$(BUILD_LDFLAGS)"
 
+build_for_linux:
+	env GOOS=linux GOARCH=amd64 go build -ldflags="$(BUILD_LDFLAGS)"
+
 depsdev:
 	go get github.com/Songmu/ghch/cmd/ghch
 	go get github.com/Songmu/gocredits/cmd/gocredits

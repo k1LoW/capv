@@ -2,12 +2,15 @@ package cap
 
 import (
 	"bytes"
+	"fmt"
 	"io"
 	"io/ioutil"
 	"os"
 	"path/filepath"
 	"strconv"
 	"strings"
+
+	"github.com/labstack/gommon/color"
 )
 
 const DefaultMountPoint = "/proc"
@@ -87,6 +90,45 @@ func NewProcCaps(p Proc) (ProcCaps, error) {
 		}
 	}
 	return c, nil
+}
+
+func (c ProcCaps) Pretty(w io.Writer) error {
+	// P(permitted)
+	if _, err := fmt.Fprintln(w, color.Cyan("P(permitted):", color.B)); err != nil {
+		return err
+	}
+	if _, err := fmt.Fprintf(w, "  %s\n", c.CapPrm.String()); err != nil {
+		return err
+	}
+	// P(inheritable)
+	if _, err := fmt.Fprintln(w, color.Cyan("P(inheritable):", color.B)); err != nil {
+		return err
+	}
+	if _, err := fmt.Fprintf(w, "  %s\n", c.CapInh.String()); err != nil {
+		return err
+	}
+	// P(effective)
+	if _, err := fmt.Fprintln(w, color.Cyan("P(effective):", color.B)); err != nil {
+		return err
+	}
+	if _, err := fmt.Fprintf(w, "  %s\n", c.CapEff.String()); err != nil {
+		return err
+	}
+	// P(bounding)
+	if _, err := fmt.Fprintln(w, color.Cyan("P(bounding):", color.B)); err != nil {
+		return err
+	}
+	if _, err := fmt.Fprintf(w, "  %s\n", c.CapBnd.String()); err != nil {
+		return err
+	}
+	// P(ambient)
+	if _, err := fmt.Fprintln(w, color.Cyan("P(ambient):", color.B)); err != nil {
+		return err
+	}
+	if _, err := fmt.Fprintf(w, "  %s\n", c.CapAmb.String()); err != nil {
+		return err
+	}
+	return nil
 }
 
 // ReadFileNoStat from github.com/prometheus/procfs/internal/util

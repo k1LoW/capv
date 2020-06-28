@@ -22,29 +22,77 @@ THE SOFTWARE.
 package cmd
 
 import (
+	"errors"
 	"fmt"
 	"os"
 
+	"github.com/k1LoW/capv/cap"
 	"github.com/spf13/cobra"
 )
 
-var pid int
+var (
+	pid  int
+	path string
+)
 
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
 	Use:   "capv",
-	Short: "viewer of linux capabilities for process",
-	Long:  `viewer of linux capabilities for process.`,
-	Run:   func(cmd *cobra.Command, args []string) {},
+	Short: "capabilitiy viewer",
+	Long:  `capabilitiy viewer.`,
+	Run: func(cmd *cobra.Command, args []string) {
+		switch {
+		case pid > 0 && path != "":
+			printFatalln(cmd, errors.New("not implemented"))
+		case pid > 0 && path == "":
+			p := cap.NewProc(pid)
+			c, err := cap.NewProcCaps(p)
+			if err != nil {
+				printFatalln(cmd, err)
+			}
+			if err := c.Pretty(os.Stdout); err != nil {
+				printFatalln(cmd, err)
+			}
+		case pid == 0 && path != "":
+			c, err := cap.NewFileCaps(path)
+			if err != nil {
+				printFatalln(cmd, err)
+			}
+			if err := c.Pretty(os.Stdout); err != nil {
+				printFatalln(cmd, err)
+			}
+		}
+	},
 }
 
 func Execute() {
+	rootCmd.SetOut(os.Stdout)
+	rootCmd.SetErr(os.Stderr)
 	if err := rootCmd.Execute(); err != nil {
-		fmt.Println(err)
-		os.Exit(1)
+		printFatalln(rootCmd, err)
 	}
 }
 
-func init() {
+// https://github.com/spf13/cobra/pull/894
+func printErrln(c *cobra.Command, i ...interface{}) {
+	c.PrintErr(fmt.Sprintln(i...))
+}
 
+func printErrf(c *cobra.Command, format string, i ...interface{}) {
+	c.PrintErr(fmt.Sprintf(format, i...))
+}
+
+func printFatalln(c *cobra.Command, i ...interface{}) {
+	printErrln(c, i...)
+	os.Exit(1)
+}
+
+func printFatalf(c *cobra.Command, format string, i ...interface{}) {
+	printErrf(c, format, i...)
+	os.Exit(1)
+}
+
+func init() {
+	rootCmd.Flags().IntVarP(&pid, "pid", "p", 0, "PID of process")
+	rootCmd.Flags().StringVarP(&path, "file", "f", "", "file path")
 }
