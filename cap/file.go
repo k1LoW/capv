@@ -74,7 +74,7 @@ func NewFileCaps(path string) (FileCaps, error) {
 func getFileCapEffective(path string) (FileCapEff, error) {
 	name := "security.capability"
 	var v uint32
-	_, _, e1 := syscall.Syscall6(syscall.SYS_GETXATTR, uintptr(unsafe.Pointer(syscall.StringBytePtr(path))), uintptr(unsafe.Pointer(syscall.StringBytePtr(name))), uintptr(unsafe.Pointer(&v)), uintptr(4*(1+2*2)), 0, 0)
+	_, _, e1 := syscall.Syscall6(syscall.SYS_GETXATTR, uintptr(unsafe.Pointer(syscall.StringBytePtr(path))), uintptr(unsafe.Pointer(syscall.StringBytePtr(name))), uintptr(unsafe.Pointer(&v)), uintptr(4*(1+2*2)), 0, 0) // #nosec
 	if e1 != 0 {
 		if e1 == syscall.ENODATA {
 			return FileCapEff(false), nil
