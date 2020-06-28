@@ -1,8 +1,8 @@
-# capv
+# capv [![Build Status](https://github.com/k1LoW/capv/workflows/build/badge.svg)](https://github.com/k1LoW/capv/actions)
 
 **WORK IN PROGRESS**
 
-capv is a Viewer of Linux capabilitiies.
+`capv` is a Viewer of Linux capabilitiies.
 
 ## Notice
 
