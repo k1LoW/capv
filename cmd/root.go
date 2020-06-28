@@ -46,19 +46,19 @@ var rootCmd = &cobra.Command{
 			printFatalln(cmd, errors.New("not implemented"))
 		case pid > 0 && path == "":
 			p := cap.NewProc(pid)
-			c, err := cap.NewProcCaps(p)
+			pc, err := cap.NewProcCaps(p)
 			if err != nil {
 				printFatalln(cmd, err)
 			}
-			if err := c.Pretty(os.Stdout); err != nil {
+			if err := pc.Pretty(os.Stdout); err != nil {
 				printFatalln(cmd, err)
 			}
 		case pid == 0 && path != "":
-			c, err := cap.NewFileCaps(path)
+			fc, err := cap.NewFileCaps(path)
 			if err != nil {
 				printFatalln(cmd, err)
 			}
-			if err := c.Pretty(os.Stdout); err != nil {
+			if err := fc.Pretty(os.Stdout); err != nil {
 				printFatalln(cmd, err)
 			}
 		}
