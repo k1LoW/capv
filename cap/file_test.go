@@ -24,7 +24,7 @@ func TestFieCaps(t *testing.T) {
 	}
 
 	got2 := c.CapEff
-	want2 := true
+	want2 := FileCapEff(true)
 	if got2 != want2 {
 		t.Errorf("got %v\nwant %v", got2, want2)
 	}
