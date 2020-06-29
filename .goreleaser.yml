@@ -1,0 +1,45 @@
+before:
+  hooks:
+    - go mod download
+    - go mod tidy
+builds:
+-
+  id: capv-linux
+  env:
+    - CGO_ENABLED=0
+  goos:
+    - linux
+  ldflags:
+    - -s -w -X github.com/k1LoW/capv.version={{.Version}} -X github.com/k1LoW/capv.commit={{.FullCommit}} -X github.com/k1LoW/capv.date={{.Date}} -X github.com/k1LoW/capv/version.Version={{.Version}}
+archives:
+-
+  id: capv-archive
+  name_template: '{{ .ProjectName }}_v{{ .Version }}_{{ .Os }}_{{ .Arch }}{{ if .Arm }}v{{ .Arm }}{{ end }}'
+  format_overrides:
+    - goos: darwin
+      format: zip
+  files:
+    - CREDITS
+    - README.md
+    - CHANGELOG.md
+checksum:
+  name_template: 'checksums.txt'
+snapshot:
+  name_template: "{{ .Version }}-next"
+changelog:
+  skip: true
+nfpms:
+  -
+    id: capv-nfpms
+    file_name_template: "{{ .ProjectName }}_{{ .Version }}-1_{{ .Arch }}"
+    builds:
+    - capv-linux
+    homepage: https://github.com/k1LoW/capv
+    maintainer: Ken'ichiro Oyama <k1lowxb@gmail.com>
+    description: capv is a viewer of Linux capabilitiies.
+    license: MIT
+    formats:
+      - deb
+      - rpm
+    bindir: /usr/bin
+    epoch: 1
