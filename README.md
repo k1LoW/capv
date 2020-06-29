@@ -2,7 +2,7 @@
 
 **WORK IN PROGRESS**
 
-`capv` is a Viewer of Linux capabilitiies.
+`capv` is a viewer of Linux capabilitiies.
 
 ## Notice
 

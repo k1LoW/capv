@@ -37,8 +37,8 @@ var (
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
 	Use:   "capv",
-	Short: "Viewer of Linux capabilitiies.",
-	Long:  `Viewer of Linux capabilitiies.`,
+	Short: "a viewer of Linux capabilitiies.",
+	Long:  `a viewer of Linux capabilitiies.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		switch {
 		case pid > 0 && path != "":

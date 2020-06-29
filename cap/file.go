@@ -49,6 +49,10 @@ func (c FileCaps) Pretty(w io.Writer) error {
 
 // NewFileCaps
 func NewFileCaps(path string) (FileCaps, error) {
+	capEff, err := getFileCapEffective(path)
+	if err != nil {
+		return FileCaps{}, err
+	}
 	c, err := capability.NewFile2(path)
 	if err != nil {
 		return FileCaps{}, err
@@ -58,10 +62,6 @@ func NewFileCaps(path string) (FileCaps, error) {
 		return FileCaps{}, err
 	}
 	clc, err := getCapLastCap(DefaultMountPoint)
-	if err != nil {
-		return FileCaps{}, err
-	}
-	capEff, err := getFileCapEffective(path)
 	if err != nil {
 		return FileCaps{}, err
 	}
