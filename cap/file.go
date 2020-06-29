@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"io"
 	"math"
+	"os"
 	"syscall"
 	"unsafe"
 
@@ -14,29 +15,30 @@ import (
 const vfsCapFlageffective = 0x000001
 
 type FileCaps struct {
-	Path   string
-	CapInh Caps
-	CapPrm Caps
-	CapEff FileCapEff
+	Path     string
+	FileInfo os.FileInfo
+	CapInh   Caps
+	CapPrm   Caps
+	CapEff   FileCapEff
 }
 
 func (c FileCaps) Pretty(w io.Writer) error {
 	// F(permitted)
-	if _, err := fmt.Fprintln(w, color.Yellow("F(permitted):", color.B)); err != nil {
+	if _, err := fmt.Fprintln(w, color.Yellow("F(permitted)", color.B)); err != nil {
 		return err
 	}
 	if _, err := fmt.Fprintf(w, "  %s\n", c.CapPrm.String()); err != nil {
 		return err
 	}
 	// F(inheritable)
-	if _, err := fmt.Fprintln(w, color.Yellow("F(inheritable):", color.B)); err != nil {
+	if _, err := fmt.Fprintln(w, color.Yellow("F(inheritable)", color.B)); err != nil {
 		return err
 	}
 	if _, err := fmt.Fprintf(w, "  %s\n", c.CapInh.String()); err != nil {
 		return err
 	}
 	// F(effective)
-	if _, err := fmt.Fprintln(w, color.Yellow("F(effective):", color.B)); err != nil {
+	if _, err := fmt.Fprintln(w, color.Yellow("F(effective)", color.B)); err != nil {
 		return err
 	}
 	if _, err := fmt.Fprintf(w, "  %s\n", c.CapEff.String()); err != nil {
@@ -63,11 +65,16 @@ func NewFileCaps(path string) (FileCaps, error) {
 	if err != nil {
 		return FileCaps{}, err
 	}
+	fi, err := os.Stat(path)
+	if err != nil {
+		return FileCaps{}, err
+	}
 	return FileCaps{
-		Path:   path,
-		CapInh: getCaps(c, capability.INHERITABLE, clc),
-		CapPrm: getCaps(c, capability.PERMITTED, clc),
-		CapEff: capEff,
+		Path:     path,
+		FileInfo: fi,
+		CapInh:   getCaps(c, capability.INHERITABLE, clc),
+		CapPrm:   getCaps(c, capability.PERMITTED, clc),
+		CapEff:   capEff,
 	}, nil
 }
 

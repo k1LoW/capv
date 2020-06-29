@@ -2,10 +2,14 @@ package cap
 
 import (
 	"fmt"
+	"io"
 	"math"
+	"os"
 	"path/filepath"
 	"strconv"
 	"strings"
+
+	"github.com/labstack/gommon/color"
 )
 
 var Capabilities = [40]string{
@@ -68,6 +72,10 @@ func NewCaps(s string, clc int) (Caps, error) {
 	}, nil
 }
 
+func (c Caps) Uint32() uint32 {
+	return c.caps
+}
+
 func (c Caps) GetIntSlice() []int {
 	bools := parseCaps(c.caps, c.clc)
 	ints := []int{}
@@ -101,6 +109,86 @@ func (c FileCapEff) String() string {
 		return "1"
 	}
 	return "0"
+}
+
+type NextCaps struct {
+	ProcCaps
+}
+
+func (c NextCaps) Pretty(w io.Writer) error {
+	// P'(permitted)
+	if _, err := fmt.Fprintln(w, color.Green("P'(permitted) = (P(inheritable) & F(inheritable)) | (F(permitted) & P(bounding)) | P'(ambient)", color.B)); err != nil {
+		return err
+	}
+	if _, err := fmt.Fprintf(w, "  %s\n", c.CapPrm.String()); err != nil {
+		return err
+	}
+	// P'(inheritable)
+	if _, err := fmt.Fprintln(w, color.Green("P'(inheritable) = P(inheritable)", color.B)); err != nil {
+		return err
+	}
+	if _, err := fmt.Fprintf(w, "  %s\n", c.CapInh.String()); err != nil {
+		return err
+	}
+	// P'(effective)
+	if _, err := fmt.Fprintln(w, color.Green("P'(effective) = F(effective) ? P'(permitted) : P'(ambient)", color.B)); err != nil {
+		return err
+	}
+	if _, err := fmt.Fprintf(w, "  %s\n", c.CapEff.String()); err != nil {
+		return err
+	}
+	// P'(bounding)
+	if _, err := fmt.Fprintln(w, color.Green("P'(bounding) = P(bounding)", color.B)); err != nil {
+		return err
+	}
+	if _, err := fmt.Fprintf(w, "  %s\n", c.CapBnd.String()); err != nil {
+		return err
+	}
+	// P'(ambient)
+	if _, err := fmt.Fprintln(w, color.Green("P'(ambient) = (file is privileged) ? 0 : P(ambient)", color.B)); err != nil {
+		return err
+	}
+	if _, err := fmt.Fprintf(w, "  %s\n", c.CapAmb.String()); err != nil {
+		return err
+	}
+	return nil
+}
+
+func CalcNextCaps(pc ProcCaps, fc FileCaps) NextCaps {
+	next := NextCaps{}
+	mode := fc.FileInfo.Mode()
+
+	// P'(ambient) = (file is privileged) ? 0 : P(ambient)
+	if (mode&os.ModeSetuid != 0) || (mode&os.ModeSetgid != 0) {
+		next.CapAmb = Caps{
+			caps: 0,
+			clc:  pc.CapAmb.clc,
+		}
+	} else {
+		next.CapAmb = pc.CapAmb
+	}
+
+	// P'(permitted) = (P(inheritable) & F(inheritable)) |
+	//           (F(permitted) & P(bounding)) | P'(ambient)
+	next.CapPrm = Caps{
+		caps: (pc.CapInh.caps & fc.CapInh.caps) | (fc.CapPrm.caps & pc.CapBnd.caps) | next.CapAmb.caps,
+		clc:  pc.CapPrm.clc,
+	}
+
+	// P'(effective) = F(effective) ? P'(permitted) : P'(ambient)
+	if fc.CapEff {
+		next.CapEff = next.CapPrm
+	} else {
+		next.CapEff = next.CapAmb
+	}
+
+	// P'(inheritable) = P(inheritable) [i.e., unchanged]
+	next.CapInh = pc.CapInh
+
+	// P'(bounding) = P(bounding) [i.e., unchanged]
+	next.CapBnd = pc.CapBnd
+
+	return next
 }
 
 func parseCaps(caps uint32, clc int) []bool {

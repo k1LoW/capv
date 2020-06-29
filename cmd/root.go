@@ -22,7 +22,6 @@ THE SOFTWARE.
 package cmd
 
 import (
-	"errors"
 	"fmt"
 	"os"
 
@@ -43,7 +42,22 @@ var rootCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		switch {
 		case pid > 0 && path != "":
-			printFatalln(cmd, errors.New("not implemented"))
+			p := cap.NewProc(pid)
+			pc, err := cap.NewProcCaps(p)
+			if err != nil {
+				printFatalln(cmd, err)
+			}
+			fc, err := cap.NewFileCaps(path)
+			if err != nil {
+				printFatalln(cmd, err)
+			}
+			nc := cap.CalcNextCaps(pc, fc)
+			if err != nil {
+				printFatalln(cmd, err)
+			}
+			if err := nc.Pretty(os.Stdout); err != nil {
+				printFatalln(cmd, err)
+			}
 		case pid > 0 && path == "":
 			p := cap.NewProc(pid)
 			pc, err := cap.NewProcCaps(p)
