@@ -1,7 +1,5 @@
 # capv [![Build Status](https://github.com/k1LoW/capv/workflows/build/badge.svg)](https://github.com/k1LoW/capv/actions)
 
-**WORK IN PROGRESS**
-
 `capv` is a viewer of Linux capabilitiies.
 
 ## Notice
@@ -23,6 +21,8 @@ $ capv -f [PATH]
 ```
 
 ### Show thread capability set after the execve(2)
+
+**:construction: WORK IN PROGRESS :construction:**
 
 ``` console
 $ capv -p [PID] -f [PATH]
