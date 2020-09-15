@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"io"
 	"math"
+	"math/big"
 	"os"
 	"path/filepath"
 	"strconv"
@@ -62,10 +63,11 @@ type Caps struct {
 
 // NewCaps
 func NewCaps(s string, clc int) (Caps, error) {
-	caps, err := strconv.ParseUint(string(s), 16, 32)
-	if err != nil {
-		return Caps{}, err
+	bi := big.NewInt(0)
+	if _, ok := bi.SetString(string(s), 16); !ok {
+		return Caps{}, fmt.Errorf("invalid format: %s", s)
 	}
+	caps := bi.Uint64()
 	return Caps{
 		caps: uint32(caps),
 		clc:  clc,
