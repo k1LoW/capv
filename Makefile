@@ -16,7 +16,7 @@ default: test
 ci: depsdev test sec
 
 test:
-	go test ./... -coverprofile=coverage.txt -covermode=count
+	go test ./... -coverprofile=coverage.out -covermode=count
 
 test_on_docker:
 	docker run --rm -it -v "$(PWD)":/go/src/github.com/k1LoW/capv -w /go/src/github.com/k1LoW/capv golang:latest go test ./... -v
