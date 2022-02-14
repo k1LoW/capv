@@ -1,6 +1,7 @@
 package cap
 
 import (
+	"fmt"
 	"os"
 	"os/exec"
 	"testing"
@@ -12,7 +13,11 @@ func TestFieCaps(t *testing.T) {
 	path := "/tmp/file_cap_test"
 	os.Create(path)
 	defer os.Remove(path)
-	exec.Command("setcap", "cap_net_bind_service=+ep", path).Run()
+	b, err := exec.Command("setcap", "cap_net_bind_service=+ep", path).CombinedOutput()
+	if err != nil {
+		fmt.Printf("%v\n", string(b))
+		t.Fatal(err)
+	}
 	c, err := NewFileCaps(path)
 	if err != nil {
 		t.Fatal(err)
