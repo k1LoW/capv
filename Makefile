@@ -18,8 +18,13 @@ ci: depsdev test sec
 test:
 	go test ./... -coverprofile=coverage.out -covermode=count
 
+test_on_ubuntu:
+	apt-get update
+	apt-get install -y libcap2-bin
+	$(MAKE) test
+
 test_on_docker:
-	docker run --rm -it -v "$(PWD)":/go/src/github.com/k1LoW/capv -w /go/src/github.com/k1LoW/capv golang:latest go test ./... -v
+	docker run --rm -it -v "$(PWD)":/go/src/github.com/k1LoW/capv -w /go/src/github.com/k1LoW/capv golang:latest make test_on_ubuntu
 
 sec:
 	gosec ./...
@@ -31,9 +36,9 @@ build_for_linux:
 	env GOOS=linux GOARCH=amd64 go build -ldflags="$(BUILD_LDFLAGS)"
 
 depsdev:
-	go get github.com/Songmu/ghch/cmd/ghch
-	go get github.com/Songmu/gocredits/cmd/gocredits
-	go get github.com/securego/gosec/cmd/gosec
+	go install github.com/Songmu/ghch/cmd/ghch@v0.10.2
+	go install github.com/Songmu/gocredits/cmd/gocredits@v0.2.0
+	go install github.com/securego/gosec/v2/cmd/gosec@v2.8.1
 
 prerelease:
 	ghch -w -N ${VER}

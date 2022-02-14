@@ -1,35 +1,27 @@
 name: build
 
-on: push
+on:
+  push:
+    branches:
+      - main
+  pull_request:
 
 jobs:
   job-test:
     name: Test
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        go_version: [1.14]
+    container: golang:latest
     steps:
       - name: Check out source code
         uses: actions/checkout@v2
 
-      - name: Set up Go ${{ matrix.go_version }}
-        uses: actions/setup-go@v2
-        with:
-          go-version: ${{ matrix.go_version }}
-
       - name: Install codecov
-        run: sudo pip install codecov
+        run: |
+          apt-get update
+          apt-get install -y libcap2-bin
 
-      - name: Test
-        run: sudo env PATH=`go env GOPATH`/bin:$PATH make ci
-        env:
-          GOPROXY: "https://proxy.golang.org"
-
-      - name: Run codecov
-        run: codecov
-        env:
-          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+      - name: Run test
+        run: make ci
 
       - name: Run octocov
         uses: k1LoW/octocov-action@v0
